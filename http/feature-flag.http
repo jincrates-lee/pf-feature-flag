@@ -1,0 +1,13 @@
+### Feature Flag 정보 조회
+GET localhost:8091/api/features/enabled-feature
+###
+GET localhost:8091/api/features/disabled-feature
+###
+GET localhost:8091/api/features/user-targeting-feature
+###
+GET localhost:8091/api/features/deployment-feature
+###
+GET localhost:8091/api/features/unknown
+
+### Feature Flag 사용자 대상 조회
+GET localhost:8091/api/features/user-targeting-feature/1234

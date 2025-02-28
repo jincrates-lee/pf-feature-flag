@@ -1,0 +1,23 @@
+spring.application.name: feature-flag
+
+server:
+  port: 8091
+
+local:
+  features:
+    enabled-feature:
+      enabled: true
+      variants: [ ]
+    disabled-feature:
+      enabled: false
+      variants: [ ]
+    user-targeting-feature:
+      enabled: true
+      variants:
+        - userId: 1234
+        - userId: 5678
+    deployment-feature:
+      enabled: true
+      variants:
+        - rolloutPercentage: 10
+
