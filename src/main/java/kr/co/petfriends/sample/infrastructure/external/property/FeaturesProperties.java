@@ -2,11 +2,9 @@ package kr.co.petfriends.sample.infrastructure.external.property;
 
 import java.util.Map;
 import kr.co.petfriends.sample.domain.Feature;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@Data
 @Component
 @ConfigurationProperties(prefix = "local")
 public class FeaturesProperties {
