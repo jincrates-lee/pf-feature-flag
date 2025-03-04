@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PropertyBasedFeatureFlag implements FeatureFlag {
 
-    private final FeaturesProperties featuresProperties;
+    private final PropertyBasedFeatureProperties properties;
 
     @Override
     public FeatureStore getStrategyName() {
@@ -20,7 +20,7 @@ public class PropertyBasedFeatureFlag implements FeatureFlag {
 
     @Override
     public Optional<Feature> getFeature(String featureName) {
-        return Optional.ofNullable(featuresProperties.getFeature(featureName));
+        return Optional.ofNullable(properties.getFeature(featureName));
     }
 
     @Override

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConfigurationProperties(prefix = "local")
-public class FeaturesProperties {
+public class PropertyBasedFeatureProperties {
 
     private Map<String, Feature> features;
 
