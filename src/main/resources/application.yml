@@ -21,3 +21,7 @@ local:
       variants:
         - rolloutPercentage: 10
 
+api:
+  amplitude:
+    url: https://experiment.amplitude.com
+    secretKey: ''
