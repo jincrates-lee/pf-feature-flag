@@ -7,7 +7,14 @@ local:
   features:
     enabled-feature:
       enabled: true
-      variants: [ ]
+      variants:
+        - property-custom:
+            param1: 1
+            param2: "2"
+            param3: true
+            param4: [
+              { "child": 1000 }
+            ]
     disabled-feature:
       enabled: false
       variants: [ ]

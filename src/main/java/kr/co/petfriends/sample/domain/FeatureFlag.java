@@ -4,6 +4,8 @@ import java.util.Optional;
 
 public interface FeatureFlag {
 
+    FeatureStore getStrategyName();
+
     Optional<Feature> getFeature(String featureName);
 
     boolean isEnabled(String featureName);

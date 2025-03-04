@@ -1,16 +1,19 @@
-### Feature Flag 정보 조회
-GET localhost:8091/api/features/enabled-feature
+### Feature Flag 정보 조회(yml property)
+GET localhost:8091/api/features/property/enabled-feature
 ###
-GET localhost:8091/api/features/disabled-feature
+GET localhost:8091/api/features/property/disabled-feature
 ###
-GET localhost:8091/api/features/user-targeting-feature
+GET localhost:8091/api/features/property/user-targeting-feature
 ###
-GET localhost:8091/api/features/deployment-feature
+GET localhost:8091/api/features/property/deployment-feature
 ###
-GET localhost:8091/api/features/unknown
-
-### Amplitude Feature Flag 정보 조회
-GET localhost:8091/api/features/flag-test-1
+GET localhost:8091/api/features/property/unknown
 
 ### Feature Flag 사용자 대상 조회
-GET localhost:8091/api/features/user-targeting-feature/1234
+GET localhost:8091/api/features/property/user-targeting-feature/1234
+
+
+### Feature Flag 정보 조회(Amplitude)
+GET localhost:8091/api/features/amplitude/flag-test-1
+
+

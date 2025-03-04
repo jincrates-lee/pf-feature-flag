@@ -3,20 +3,25 @@ package kr.co.petfriends.sample.infrastructure.external.amplitude;
 import java.util.Optional;
 import kr.co.petfriends.sample.domain.Feature;
 import kr.co.petfriends.sample.domain.FeatureFlag;
+import kr.co.petfriends.sample.domain.FeatureStore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Qualifier("AmplitudeFeatureFlag")
 class AmplitudeFeatureFlag implements FeatureFlag {
 
     private final WebClient amplitudeWebClient;
+
+    @Override
+    public FeatureStore getStrategyName() {
+        return FeatureStore.AMPLITUDE;
+    }
 
     @Override
     public Optional<Feature> getFeature(String featureName) {
@@ -39,13 +44,23 @@ class AmplitudeFeatureFlag implements FeatureFlag {
                         .variants(flag.variants())
                         .build());
             })
-            .defaultIfEmpty(Feature.defaultValue())
+            .onErrorResume(error -> {
+                log.error(
+                    "Error fetching feature flag '{}' from Amplitude: {}",
+                    featureName,
+                    error.getMessage(),
+                    error
+                );
+                return Mono.empty();
+            })
             .blockOptional();
     }
 
     @Override
     public boolean isEnabled(String featureName) {
-        return false;
+        return getFeature(featureName)
+            .map(Feature::enabled)
+            .orElse(false);
     }
 
     @Override
@@ -53,6 +68,13 @@ class AmplitudeFeatureFlag implements FeatureFlag {
         String featureName,
         Integer userId
     ) {
-        return false;
+        if (!isEnabled(featureName)) {
+            return false;
+        }
+
+        return getFeature(featureName)
+            .map(feature -> feature.variants().stream()
+                .anyMatch(variant -> userId.equals(variant.get("userId"))))
+            .orElse(false);
     }
 }

@@ -14,10 +14,4 @@ public record Feature(
     public Feature {
         variants = (variants == null) ? new ArrayList<>() : variants;
     }
-
-    public static Feature defaultValue() {
-        return Feature.builder()
-            .enabled(false)
-            .build();
-    }
 }
