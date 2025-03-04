@@ -14,7 +14,7 @@ public class FeatureFlagController {
 
     private final FeatureFlag featureFlag;
 
-    public FeatureFlagController(@Qualifier("AmplitudeFeatureFlag") FeatureFlag featureFlag) {
+    public FeatureFlagController(@Qualifier("PropertyBasedFeatureFlag") FeatureFlag featureFlag) {
         this.featureFlag = featureFlag;
     }
 

@@ -4,10 +4,12 @@ import java.util.Optional;
 import kr.co.petfriends.sample.domain.Feature;
 import kr.co.petfriends.sample.domain.FeatureFlag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Qualifier("PropertyBasedFeatureFlag")
 public class PropertyBasedFeatureFlag implements FeatureFlag {
 
     private final FeaturesProperties featuresProperties;
