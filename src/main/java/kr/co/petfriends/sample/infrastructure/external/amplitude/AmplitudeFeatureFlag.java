@@ -1,5 +1,6 @@
 package kr.co.petfriends.sample.infrastructure.external.amplitude;
 
+import java.security.SecureRandom;
 import java.util.Optional;
 import kr.co.petfriends.sample.domain.Feature;
 import kr.co.petfriends.sample.domain.FeatureFlag;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 class AmplitudeFeatureFlag implements FeatureFlag {
 
     private final WebClient amplitudeWebClient;
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Override
     public FeatureStore getStrategyName() {
@@ -77,5 +79,67 @@ class AmplitudeFeatureFlag implements FeatureFlag {
             .map(feature -> feature.variants().stream()
                 .anyMatch(variant -> userId.equals(variant.get("userId"))))
             .orElse(false);
+    }
+
+    @Override
+    public <T> T getVariant(
+        String featureName,
+        String variantName,
+        Class<T> classType
+    ) {
+        try {
+            return getFeature(featureName)
+                .flatMap(feature -> feature.variants().stream()
+                    .filter(variant -> variantName.equals(variant.get("name")))
+                    .findFirst()
+                    .map(variant -> variant.get("payload"))
+                )
+                .map(payload -> {
+                    try {
+                        return classType.cast(payload);
+                    } catch (ClassCastException e) {
+                        log.error(
+                            "Failed to cast payload for feature '{}', variant '{}' to type {}: {}",
+                            featureName,
+                            variantName,
+                            classType.getName(),
+                            e.getMessage()
+                        );
+                        return null;
+                    }
+                })
+                .orElse(null);
+        } catch (Exception e) {
+            log.warn(
+                "Error retrieving variant '{}' for feature '{}': {}",
+                variantName,
+                featureName,
+                e.getMessage(),
+                e
+            );
+            return null;
+        }
+    }
+
+    @Override
+    public boolean isFeatureEnabledByPercentage(String featureName) {
+        Integer rolloutPercentage = getVariant(
+            featureName,
+            "rollout_percentage",
+            Integer.class
+        );
+
+        return isNewFeatureEnabled(rolloutPercentage);
+    }
+
+    private boolean isNewFeatureEnabled(int rolloutPercentage) {
+        if (rolloutPercentage <= 0) {
+            return false;
+        }
+        if (rolloutPercentage >= 100) {
+            return true;
+        }
+
+        return SECURE_RANDOM.nextInt(100) < rolloutPercentage;
     }
 }

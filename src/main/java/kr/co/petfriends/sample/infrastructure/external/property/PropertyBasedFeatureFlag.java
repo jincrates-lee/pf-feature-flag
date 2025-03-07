@@ -44,4 +44,18 @@ public class PropertyBasedFeatureFlag implements FeatureFlag {
                 .anyMatch(variant -> userId.equals(variant.get("userId"))))
             .orElse(false);
     }
+
+    @Override
+    public <T> T getVariant(
+        String featureName,
+        String variantName,
+        Class<T> classType
+    ) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public boolean isFeatureEnabledByPercentage(String featureName) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

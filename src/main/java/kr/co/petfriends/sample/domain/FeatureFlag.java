@@ -14,4 +14,12 @@ public interface FeatureFlag {
         String featureName,
         Integer userId
     );
+
+    <T> T getVariant(
+        String featureName,
+        String variantName,
+        Class<T> classType
+    );
+
+    boolean isFeatureEnabledByPercentage(String featureName);
 }
