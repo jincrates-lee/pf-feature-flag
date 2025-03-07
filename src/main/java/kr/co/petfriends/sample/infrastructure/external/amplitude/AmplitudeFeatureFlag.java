@@ -40,6 +40,7 @@ class AmplitudeFeatureFlag implements FeatureFlag {
                     .filter(flag -> featureName.equals(flag.key()))
                     .next()
                     .map(flag -> Feature.builder()
+                        .name(featureName)
                         .enabled(flag.enabled())
                         .variants(flag.variants())
                         .build());

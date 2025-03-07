@@ -21,6 +21,6 @@ public class PropertyBasedFeatureProperties {
 
     // 편의 메서드
     public Feature getFeature(String name) {
-        return features.get(name);
+        return features.get(name).withName(name);
     }
 }
