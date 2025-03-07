@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,27 +21,24 @@ public class SampleController {
      * 점진적 기능 출시 예제(random)
      */
     @GetMapping("/gradual-rollout")
-    public String gradualRollout() {
+    public Mono<String> gradualRollout() {
         FeatureFlag strategy = featureFlagFactory.findStrategy(FeatureStore.AMPLITUDE);
-        boolean isFeatureEnabled = strategy.isFeatureEnabledByPercentage("gradual-rollout-flag-test");
-
-        String result = isFeatureEnabled ? "new feature" : "legacy feature";
-
-        return String.format(
-            "gradual-rollout target: %s",
-            result
-        );
+        return strategy.isFeatureEnabledByPercentage("gradual-rollout-flag-test")
+            .map(isFeatureEnabled -> String.format(
+                "gradual-rollout target: %s",
+                isFeatureEnabled ? "new feature" : "legacy feature"
+            ));
     }
 
     /**
      * 플래그 활성화 여부 확인
      */
     @GetMapping("/check")
-    public String checkFeatureFlag(
+    public Mono<String> checkFeatureFlag(
         @RequestParam String featureName
     ) {
         FeatureFlag strategy = featureFlagFactory.findStrategy(FeatureStore.AMPLITUDE);
-        boolean isEnabled = strategy.isEnabled(featureName);
-        return isEnabled ? "enabled" : "disabled";
+        return strategy.isEnabled(featureName)
+            .map(isEnabled -> isEnabled ? "enabled" : "disabled");
     }
 }

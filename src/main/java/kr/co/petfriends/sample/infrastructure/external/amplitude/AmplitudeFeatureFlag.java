@@ -1,7 +1,6 @@
 package kr.co.petfriends.sample.infrastructure.external.amplitude;
 
 import java.security.SecureRandom;
-import java.util.Optional;
 import kr.co.petfriends.sample.domain.Feature;
 import kr.co.petfriends.sample.domain.FeatureFlag;
 import kr.co.petfriends.sample.domain.FeatureStore;
@@ -26,8 +25,7 @@ class AmplitudeFeatureFlag implements FeatureFlag {
     }
 
     @Override
-    public Optional<Feature> getFeature(String featureName) {
-        // TODO: 단일 AmplitudeFeatureFlag만 조회할 수 있을까
+    public Mono<Feature> getFeature(String featureName) {
         return amplitudeWebClient
             .get()
             .uri("/api/1/flags?key=" + featureName)
@@ -55,81 +53,82 @@ class AmplitudeFeatureFlag implements FeatureFlag {
                     error
                 );
                 return Mono.empty();
-            })
-            .blockOptional();
+            });
     }
 
     @Override
-    public boolean isEnabled(String featureName) {
+    public Mono<Boolean> isEnabled(String featureName) {
         return getFeature(featureName)
             .map(Feature::enabled)
-            .orElse(false);
+            .defaultIfEmpty(false);
     }
 
     @Override
-    public boolean isEnabledForUser(
+    public Mono<Boolean> isEnabledForUser(
         String featureName,
         Integer userId
     ) {
-        if (!isEnabled(featureName)) {
-            return false;
-        }
-
-        return getFeature(featureName)
-            .map(feature -> feature.variants().stream()
-                .anyMatch(variant -> userId.equals(variant.get("userId"))))
-            .orElse(false);
+        return isEnabled(featureName)
+            .flatMap(isEnabled -> {
+                if (!isEnabled) {
+                    return Mono.just(false);
+                }
+                return getFeature(featureName)
+                    .map(feature -> feature.variants().stream()
+                        .anyMatch(variant -> userId.equals(variant.get("userId"))))
+                    .defaultIfEmpty(false);
+            });
     }
 
     @Override
-    public <T> T getVariant(
+    public <T> Mono<T> getVariant(
         String featureName,
         String variantName,
         Class<T> classType
     ) {
-        try {
-            return getFeature(featureName)
-                .flatMap(feature -> feature.variants().stream()
+        return getFeature(featureName)
+            .flatMap(feature -> {
+                return Flux.fromStream(feature.variants().stream())
                     .filter(variant -> variantName.equals(variant.get("name")))
-                    .findFirst()
+                    .next()  // Flux에서 첫 번째 항목을 반환
                     .map(variant -> variant.get("payload"))
-                )
-                .map(payload -> {
-                    try {
-                        return classType.cast(payload);
-                    } catch (ClassCastException e) {
-                        log.error(
-                            "Failed to cast payload for feature '{}', variant '{}' to type {}: {}",
-                            featureName,
-                            variantName,
-                            classType.getName(),
-                            e.getMessage()
-                        );
-                        return null;
-                    }
-                })
-                .orElse(null);
-        } catch (Exception e) {
-            log.warn(
-                "Error retrieving variant '{}' for feature '{}': {}",
-                variantName,
-                featureName,
-                e.getMessage(),
-                e
-            );
-            return null;
-        }
+                    .flatMap(payload -> {
+                        try {
+                            return Mono.just(classType.cast(payload));  // 클래스로 캐스팅
+                        } catch (ClassCastException e) {
+                            log.error(
+                                "Failed to cast payload for feature '{}', variant '{}' to type {}: {}",
+                                featureName,
+                                variantName,
+                                classType.getName(),
+                                e.getMessage()
+                            );
+                            return Mono.empty();  // 실패 시 빈 Mono 반환
+                        }
+                    });
+            })
+            .switchIfEmpty(Mono.empty())  // variant가 없을 경우 빈 Mono 반환
+            .onErrorResume(e -> {
+                log.warn(
+                    "Error retrieving variant '{}' for feature '{}': {}",
+                    variantName,
+                    featureName,
+                    e.getMessage(),
+                    e
+                );
+                return Mono.empty();  // 오류 발생 시 빈 Mono 반환
+            });
     }
 
     @Override
-    public boolean isFeatureEnabledByPercentage(String featureName) {
-        Integer rolloutPercentage = getVariant(
+    public Mono<Boolean> isFeatureEnabledByPercentage(String featureName) {
+        return getVariant(
             featureName,
             "rollout_percentage",
             Integer.class
-        );
-
-        return isNewFeatureEnabled(rolloutPercentage);
+        )
+            .flatMap(rolloutPercentage -> Mono.just(isNewFeatureEnabled(rolloutPercentage)))
+            .defaultIfEmpty(false);  // 값이 없을 경우 false 반환
     }
 
     private boolean isNewFeatureEnabled(int rolloutPercentage) {

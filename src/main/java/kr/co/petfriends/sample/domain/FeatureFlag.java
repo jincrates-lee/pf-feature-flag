@@ -1,25 +1,25 @@
 package kr.co.petfriends.sample.domain;
 
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 public interface FeatureFlag {
 
     FeatureStore getStrategyName();
 
-    Optional<Feature> getFeature(String featureName);
+    Mono<Feature> getFeature(String featureName);
 
-    boolean isEnabled(String featureName);
+    Mono<Boolean> isEnabled(String featureName);
 
-    boolean isEnabledForUser(
+    Mono<Boolean> isEnabledForUser(
         String featureName,
         Integer userId
     );
 
-    <T> T getVariant(
+    <T> Mono<T> getVariant(
         String featureName,
         String variantName,
         Class<T> classType
     );
 
-    boolean isFeatureEnabledByPercentage(String featureName);
+    Mono<Boolean> isFeatureEnabledByPercentage(String featureName);
 }
