@@ -28,6 +28,9 @@ GET localhost:8091/api/samples/check?featureName=flag-test-1
 ### Feature Flag 활성 여부 확인2
 GET localhost:8091/api/samples/check?featureName=gradual-rollout-flag-test
 
+### Feature Flag 활성 여부 확인3
+GET localhost:8091/api/samples/check2?featureName=gradual-rollout-flag-test
+
 
 ### AOP-TEST-1
 GET localhost:8091/api/samples/aop-test-1

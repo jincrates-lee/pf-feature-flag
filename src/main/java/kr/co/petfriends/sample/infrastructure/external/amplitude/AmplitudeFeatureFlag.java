@@ -131,6 +131,16 @@ class AmplitudeFeatureFlag implements FeatureFlag {
             .defaultIfEmpty(false);  // 값이 없을 경우 false 반환
     }
 
+    @Override
+    public <T> Mono<T> executeFeature(
+        String featureName,
+        Mono<T> enableAction,
+        Mono<T> disableAction
+    ) {
+        return this.isEnabled(featureName)
+            .flatMap(enabled -> enabled ? enableAction : disableAction);
+    }
+
     private boolean isNewFeatureEnabled(int rolloutPercentage) {
         if (rolloutPercentage <= 0) {
             return false;

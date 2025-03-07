@@ -44,6 +44,21 @@ public class SampleController {
     }
 
     /**
+     * 플래그 활성화 여부 확인
+     */
+    @GetMapping("/check2")
+    public Mono<String> checkFeatureFlag2(
+        @RequestParam String featureName
+    ) {
+        FeatureFlag strategy = featureFlagFactory.findStrategy(FeatureStore.AMPLITUDE);
+        return strategy.executeFeature(
+            featureName,
+            Mono.fromCallable(() -> "New Feature Enabled!"),
+            Mono.fromCallable(() -> "Using Legacy Feature.")
+        );
+    }
+
+    /**
      * AOP 테스트
      */
     @GetMapping("aop-test-1")

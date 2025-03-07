@@ -60,4 +60,13 @@ public class PropertyBasedFeatureFlag implements FeatureFlag {
     public Mono<Boolean> isFeatureEnabledByPercentage(String featureName) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public <T> Mono<T> executeFeature(
+        String featureName,
+        Mono<T> enableAction,
+        Mono<T> disableAction
+    ) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
