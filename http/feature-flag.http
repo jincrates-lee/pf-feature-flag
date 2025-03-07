@@ -16,9 +16,11 @@ GET localhost:8091/api/features/property/user-targeting-feature/1234
 ### Feature Flag 정보 조회(Amplitude)
 GET localhost:8091/api/features/amplitude/flag-test-1
 
-### Feature Flag 정보 조회(Amplitude)
+### Feature Flag 정보 조회2 (Amplitude)
 GET localhost:8091/api/features/amplitude/gradual-rollout-flag-test
 
 ### Feature Flag 점진적 기능 출시 예시
 GET localhost:8091/api/samples/gradual-rollout
 
+### Feature Flag 활성 여부 확인
+GET localhost:8091/api/samples/check?featureName=flag-test-1

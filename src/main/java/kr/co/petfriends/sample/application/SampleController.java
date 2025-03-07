@@ -6,6 +6,7 @@ import kr.co.petfriends.sample.domain.FeatureStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -29,5 +30,17 @@ public class SampleController {
             "gradual-rollout target: %s",
             result
         );
+    }
+
+    /**
+     * 플래그 활성화 여부 확인
+     */
+    @GetMapping("/check")
+    public String checkFeatureFlag(
+        @RequestParam String featureName
+    ) {
+        FeatureFlag strategy = featureFlagFactory.findStrategy(FeatureStore.AMPLITUDE);
+        boolean isEnabled = strategy.isEnabled(featureName);
+        return isEnabled ? "enabled" : "disabled";
     }
 }
